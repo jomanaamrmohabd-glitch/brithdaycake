@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap" rel="stylesheet">
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:#0b0f2f;
+font-family:'Rubik Bubbles',cursive;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+/* stars */
+.star{
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+}
+
+/* container */
+.screen{
+text-align:center;
+}
+
+/* text */
+.big{
+font-size:32px;
+margin-bottom:40px;
+}
+
+/* buttons container */
+.btns{
+display:flex;
+justify-content:center;
+gap:20px;
+}
+
+/* buttons */
+button{
+padding:15px 40px;
+border:none;
+border-radius:12px;
+font-size:18px;
+cursor:pointer;
+font-family:'Rubik Bubbles';
+}
+
+.yes{background:#4CAF50;color:white;}
+.no{background:#ff4d4d;color:white;}
+
+/* cake */
+.cake{
+display:flex;
+flex-direction:column;
+align-items:center;
+margin-top:30px;
+}
+
+/* layers */
+.layer{
+height:55px;
+border-radius:50px;
+margin:0;
+}
+
+.l1{width:300px;background:#33cc66;}
+.l2{width:240px;background:#ffee33;}
+.l3{width:190px;background:#ff9933;}
+.l4{width:140px;background:#ff4d4d;}
+
+/* candle */
+.candle{
+width:12px;
+height:45px;
+background:pink;
+position:relative;
+margin-bottom:5px;
+}
+
+.wick{
+width:3px;
+height:8px;
+background:white;
+position:absolute;
+top:-8px;
+left:50%;
+transform:translateX(-50%);
+}
+
+.flame{
+width:10px;
+height:12px;
+background:orange;
+border-radius:50%;
+position:absolute;
+top:-18px;
+left:50%;
+transform:translateX(-50%);
+display:none;
+}
+
+/* table */
+.table{
+width:420px;
+height:20px;
+background:white;
+margin-top:10px;
+}
+
+/* lighter */
+.lighter{
+width:35px;
+height:60px;
+background:gray;
+position:absolute;
+bottom:30px;
+left:30px;
+border-radius:6px;
+}
+
+/* arrow */
+.arrow{
+position:absolute;
+bottom:110px;
+left:30px;
+text-align:center;
+}
+
+/* count */
+.count{
+font-size:60px;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="app"></div>
+<audio id="fireSound" src="fire.mp3"></audio>
+
+<script>
+
+let app=document.getElementById("app");
+
+/* stars */
+for(let i=0;i<100;i++){
+let s=document.createElement("div");
+s.className="star";
+s.style.left=Math.random()*100+"vw";
+s.style.top=Math.random()*100+"vh";
+document.body.appendChild(s);
+}
+
+/* PAGE 1 */
+function page1(){
+app.innerHTML=`
+<div class="screen">
+<div class="big">wants to see your birthday cake?</div>
+
+<div class="btns">
+<button class="yes" onclick="page2()">YES</button>
+<button class="no" id="noBtn">NO</button>
+</div>
+</div>
+`;
+
+let no=document.getElementById("noBtn");
+
+no.onmouseenter=()=>{
+no.style.transform=`translate(${Math.random()*200-100}px,${Math.random()*200-100}px)`;
+};
+}
+
+/* PAGE 2 */
+function page2(){
+app.innerHTML=`
+<div class="screen">
+
+<div class="big" id="topText">Drag the lighter to light the candle</div>
+<div id="count" class="count"></div>
+
+<div class="cake">
+<div class="candle">
+<div class="wick"></div>
+<div id="flame" class="flame"></div>
+</div>
+
+<div class="layer l4"></div>
+<div class="layer l3"></div>
+<div class="layer l2"></div>
+<div class="layer l1"></div>
+
+<div class="table"></div>
+</div>
+
+</div>
+
+<div class="arrow">the lighter down here </div>
+<div class="lighter" id="lighter"></div>
+`;
+drag();
+}
+
+/* drag */
+function drag(){
+let lighter=document.getElementById("lighter");
+let flame=document.getElementById("flame");
+
+let dragging=false,lit=false;
+
+lighter.onpointerdown=()=>dragging=true;
+document.onpointerup=()=>dragging=false;
+
+document.onpointermove=e=>{
+if(!dragging)return;
+
+lighter.style.left=e.clientX+"px";
+lighter.style.top=e.clientY+"px";
+
+let c=document.querySelector(".candle").getBoundingClientRect();
+
+if(!lit &&
+e.clientX>c.left &&
+e.clientX<c.right &&
+e.clientY>c.top &&
+e.clientY<c.bottom){
+lit=true;
+flame.style.display="block";
+document.getElementById("fireSound").play();
+countdown();
+}
+}
+}
+
+/* countdown */
+function countdown(){
+document.getElementById("topText").innerText="blow the candle after counting to ten";
+
+let c=10;
+let div=document.getElementById("count");
+
+let i=setInterval(()=>{
+div.innerText=c;
+c--;
+if(c<0){
+clearInterval(i);
+end();
+}
+},1000);
+}
+
+/* end */
+function end(){
+document.getElementById("flame").style.display="none";
+
+app.innerHTML=`
+<div class="screen">
+<div class="big">HAPPY BIRTHDAY OUR NOUR!! I WISH 
+YOU LIKED THE CAKE</div>
+</div>`;
+}
+
+page1();
+
+</script>
+
+</body>
+</html>
